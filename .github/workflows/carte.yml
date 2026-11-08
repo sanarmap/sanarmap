@@ -1,0 +1,41 @@
+# Vérifie chaque contribution, puis publie dist/ sur GitHub Pages à chaque fusion dans main.
+name: Carte
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: true
+jobs:
+  verifier:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Format (un objet par ligne)
+        run: |
+          node scripts/format.mjs
+          git diff --exit-code data || (echo "Lancez « node scripts/format.mjs » avant d'envoyer" && exit 1)
+      - run: node scripts/validate.mjs
+      - run: node scripts/build.mjs
+      - uses: actions/upload-pages-artifact@v3
+        if: github.event_name == 'push'
+        with:
+          path: dist
+  publier:
+    if: github.event_name == 'push'
+    needs: verifier
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploiement.outputs.page_url }}
+    steps:
+      - id: deploiement
+        uses: actions/deploy-pages@v4

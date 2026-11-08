@@ -1,0 +1,14 @@
+{
+  "name": "sanarmap",
+  "version": "0.1.0",
+  "description": "La carte libre du campus de l'Université Gaston Berger (Sanar, Saint-Louis)",
+  "license": "MIT AND ODbL-1.0",
+  "type": "module",
+  "private": true,
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "validate": "node scripts/validate.mjs",
+    "format": "node scripts/format.mjs",
+    "build": "node scripts/build.mjs"
+  }
+}
