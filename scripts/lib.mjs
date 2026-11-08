@@ -66,3 +66,6 @@ export const CATEGORIES = {
   sante: "Santé",
   pratique: "Pratique",
 };
+
+/** Icônes de marqueur possibles (`icon`), quand celle de la catégorie ne va pas au lieu. */
+export const ICONS = ["piscine", "sport", "repere", "culture", "chapiteau", "argent", "portail"];
