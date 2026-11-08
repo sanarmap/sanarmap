@@ -64,7 +64,7 @@
   const adj = Array.from({ length: n }, () => []);
   for (let e = 0; e < net.edges.length; e += 3) {
     const [a, b, t] = net.edges.slice(e, e + 3);
-    const w = m(pt(a), pt(b)) * (t === 2 ? 1.5 : 1); // la grande route compte plus
+    const w = m(pt(a), pt(b)) * ([1, 1, 1.5, 2.5][t] ?? 1); // grande route et quartier comptent plus
     adj[a].push([b, w]);
     adj[b].push([a, w]);
   }

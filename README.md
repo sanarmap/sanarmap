@@ -46,8 +46,10 @@ L'exemple complet, avec le calcul d'itinéraire, est dans [`examples/index.html`
   "edges": [a, b, type, a, b, type, …] } // tronçon entre les points a et b
 ```
 
-`type` : 0 chemin, 1 rue, 2 grande route (route de Rosso ; comptez-la 1,5 fois plus longue pour
-éviter de la longer). Deux tronçons sont reliés quand ils partagent un point.
+`type` : 0 chemin, 1 rue, 2 grande route (route de Rosso), 3 rue ou chemin du quartier, hors du
+contour de l'université. Pour des itinéraires naturels, comptez la grande route 1,5 fois sa
+longueur (on préfère les chemins du campus) et le quartier 2,5 fois (on longe la grande route
+plutôt que de traverser le quartier). Deux tronçons sont reliés quand ils partagent un point.
 
 ## Contribuer
 
