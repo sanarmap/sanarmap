@@ -61,3 +61,8 @@ node scripts/build.mjs      # facultatif : regardez le résultat dans dist/
 Puis ouvrez une **pull request** en expliquant ce que vous avez changé et comment vous le savez
 (« je passe par là tous les jours », photo…). La validation se relance toute seule ; une
 personne de l'équipe relit, puis fusionne. La carte publiée se met à jour quelques minutes après.
+
+## Relecture
+
+La branche `main` est protégée : toute modification passe par une pull request, que la
+validation automatique doit accepter et qu'une personne de l'équipe doit approuver.

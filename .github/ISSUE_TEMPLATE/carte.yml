@@ -1,0 +1,41 @@
+name: Erreur ou oubli sur la carte
+description: Un bâtiment qui manque, un nom faux, un chemin pas tracé…
+title: "[Carte] "
+labels: ["carte"]
+body:
+  - type: dropdown
+    id: quoi
+    attributes:
+      label: Qu'est-ce qui ne va pas ?
+      options:
+        - Un lieu ou un bâtiment manque
+        - Un nom est faux
+        - Un chemin ou un raccourci n'est pas tracé
+        - Quelque chose est mal placé
+        - Autre
+    validations:
+      required: true
+  - type: textarea
+    id: ou
+    attributes:
+      label: Où ?
+      description: Un repère proche suffit (« entre le village D et la BU », « derrière le Resto 2 »).
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: Ce qu'il faudrait corriger
+      description: Le bon nom, à quoi sert le lieu… Glissez une photo ici si vous pouvez.
+    validations:
+      required: true
+  - type: dropdown
+    id: source
+    attributes:
+      label: Comment le savez-vous ?
+      options:
+        - Je l'ai vu sur place
+        - Quelqu'un qui connaît le terrain me l'a dit
+        - Autre
+    validations:
+      required: true
