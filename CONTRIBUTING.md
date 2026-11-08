@@ -68,3 +68,9 @@ personne de l'équipe relit, puis fusionne. La carte publiée se met à jour que
 
 La branche `main` est protégée : toute modification passe par une pull request, que la
 validation automatique doit accepter et qu'une personne de l'équipe doit approuver.
+
+## Messages de commit
+
+Un titre court, comme un titre de journal : « Siège de la Commission sociale », « Raccordement
+du chemin du village D à la BU ». Pas de jargon ni de notes internes ; le détail va dans la
+description de la pull request. Sur GitHub, fusionnez avec « Squash and merge ».
