@@ -44,8 +44,11 @@ for (const b of buildings) {
 }
 
 // Réseau à pied : les tronçons qui partagent un point (coordonnées identiques) sont reliés.
-// nodes = [lng, lat, lng, lat…] ; edges = [a, b, type…] avec type 0 chemin, 1 rue, 2 grande route.
+// nodes = [lng, lat, lng, lat…] ; edges = [a, b, type…] avec type 0 chemin, 1 rue, 2 grande route,
+// 3 rue ou chemin hors du contour de l'université (le quartier de Sanar).
 const TYPE = { path: 0, "road-minor": 1, "road-major": 2 };
+const campusRings = out.filter((f) => f.properties.k === "campus").flatMap((f) => outerRings(f.geometry));
+const outside = (a, b) => campusRings.length > 0 && !campusRings.some((r) => inRing([(a[0] + b[0]) / 2, (a[1] + b[1]) / 2], r));
 const index = new Map();
 const nodes = [];
 const edges = [];
@@ -57,7 +60,8 @@ const node = (c) => {
 for (const f of out) {
   const t = TYPE[f.properties.k];
   if (t === undefined) continue;
-  for (const l of lines(f.geometry)) for (let i = 1; i < l.length; i++) edges.push(node(l[i - 1]), node(l[i]), t);
+  for (const l of lines(f.geometry))
+    for (let i = 1; i < l.length; i++) edges.push(node(l[i - 1]), node(l[i]), t < 2 && outside(l[i - 1], l[i]) ? 3 : t);
 }
 
 fs.mkdirSync("dist", { recursive: true });
