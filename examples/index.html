@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SanarMap · carte libre du campus de l'UGB</title>
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@6/dist/maplibre-gl.css">
+<style>
+  html, body { margin: 0; height: 100%; font-family: system-ui, sans-serif; color: #1d1d1d; }
+  #map { position: fixed; inset: 0; background: #f3f6f7; }
+  .panel { position: fixed; top: 12px; left: 12px; right: 12px; max-width: 360px; background: #fff; border-radius: 18px; padding: 14px 16px; box-shadow: 0 6px 24px #0002; font-size: 14px; line-height: 1.4; }
+  .panel h1 { margin: 0 0 4px; font-size: 18px; }
+  .panel p { margin: 0; color: #495057; }
+  .pin { width: 14px; height: 14px; border-radius: 50%; background: #b25f35; border: 2px solid #fff; box-shadow: 0 1px 4px #0005; cursor: pointer; }
+  .pin.on { background: #3588b2; }
+</style>
+</head>
+<body>
+<div id="map"></div>
+<div class="panel">
+  <h1>SanarMap</h1>
+  <p id="info">Touche un lieu de départ, puis un lieu d'arrivée : l'itinéraire à pied se calcule dans la page, sans Google Maps.</p>
+</div>
+<script type="module">
+  import * as maplibregl from "https://unpkg.com/maplibre-gl@6/dist/maplibre-gl.mjs";
+
+  // Les fichiers de dist/ (à côté de cette page une fois publiée).
+  const [campus, places, net] = await Promise.all(
+    ["campus.geojson", "places.geojson", "reseau.json"].map((f) => fetch(f).then((r) => r.json())),
+  );
+
+  const map = new maplibregl.Map({
+    container: "map",
+    center: [-16.4225, 16.0625],
+    zoom: 15.6,
+    style: { version: 8, sources: {}, layers: [{ id: "fond", type: "background", paint: { "background-color": "#f3f6f7" } }] },
+    attributionControl: { customAttribution: campus.attribution },
+  });
+
+  map.on("load", () => {
+    map.addSource("campus", { type: "geojson", data: campus });
+    map.addSource("trajet", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
+    const fill = (id, k, color) => map.addLayer({ id, type: "fill", source: "campus", filter: ["==", ["get", "k"], k], paint: { "fill-color": color } });
+    fill("zones", "zone", "#ebf0f2");
+    fill("verdure", "green", "#c5ddb6");
+    fill("sable", "sand", "#f1e6cf");
+    fill("eau", "water", "#a9d3ea");
+    fill("sport", "sport", "#d7e8c8");
+    const line = (id, k, color, width) => map.addLayer({ id, type: "line", source: "campus", filter: ["==", ["get", "k"], k], paint: { "line-color": color, "line-width": width } });
+    line("chemins", "path", "#d5dadd", 1.5);
+    line("rues", "road-minor", "#ffffff", 4);
+    line("routes", "road-major", "#ffffff", 7);
+    map.addLayer({ id: "trajet", type: "line", source: "trajet", paint: { "line-color": "#3588b2", "line-width": 5 }, layout: { "line-cap": "round", "line-join": "round" } });
+    map.addLayer({
+      id: "batiments", type: "fill-extrusion", source: "campus", filter: ["==", ["get", "k"], "building"],
+      paint: { "fill-extrusion-color": "#dfd8cf", "fill-extrusion-height": 6, "fill-extrusion-opacity": 0.9 },
+    });
+  });
+
+  // --- Itinéraire : plus court chemin (Dijkstra) sur reseau.json ---
+  const n = net.nodes.length / 2;
+  const pt = (i) => [net.nodes[2 * i], net.nodes[2 * i + 1]];
+  const m = (a, b) => Math.hypot((a[0] - b[0]) * 106_900, (a[1] - b[1]) * 111_320);
+  const adj = Array.from({ length: n }, () => []);
+  for (let e = 0; e < net.edges.length; e += 3) {
+    const [a, b, t] = net.edges.slice(e, e + 3);
+    const w = m(pt(a), pt(b)) * (t === 2 ? 1.5 : 1); // la grande route compte plus
+    adj[a].push([b, w]);
+    adj[b].push([a, w]);
+  }
+  const closest = (c) => {
+    let best = 0, d = Infinity;
+    for (let i = 0; i < n; i++) if (adj[i].length && m(c, pt(i)) < d) (d = m(c, pt(i))), (best = i);
+    return best;
+  };
+  function route(from, to) {
+    const s = closest(from), goal = closest(to);
+    const dist = new Float64Array(n).fill(Infinity), prev = new Int32Array(n).fill(-1), done = new Uint8Array(n);
+    dist[s] = 0;
+    const queue = [[0, s]];
+    while (queue.length) {
+      queue.sort((a, b) => b[0] - a[0]); // petite file : suffisant pour un campus
+      const [, u] = queue.pop();
+      if (done[u]) continue;
+      done[u] = 1;
+      if (u === goal) break;
+      for (const [v, w] of adj[u]) if (dist[u] + w < dist[v]) (dist[v] = dist[u] + w), (prev[v] = u), queue.push([dist[v], v]);
+    }
+    const path = [to];
+    for (let u = goal; u !== -1; u = prev[u]) path.push(pt(u));
+    path.push(from);
+    return path.reverse();
+  }
+
+  // --- Lieux ---
+  let start = null;
+  const info = document.getElementById("info");
+  for (const f of places.features) {
+    const el = document.createElement("div");
+    el.className = "pin";
+    el.title = f.properties.name;
+    new maplibregl.Marker({ element: el }).setLngLat(f.geometry.coordinates).addTo(map);
+    el.addEventListener("click", () => {
+      if (!start) {
+        document.querySelectorAll(".pin.on").forEach((p) => p.classList.remove("on"));
+        start = f;
+        el.classList.add("on");
+        info.textContent = `Départ : ${f.properties.name}. Touche maintenant l'arrivée.`;
+        return;
+      }
+      el.classList.add("on");
+      const coords = route(start.geometry.coordinates, f.geometry.coordinates);
+      const len = coords.slice(1).reduce((a, c, i) => a + m(coords[i], c), 0);
+      map.getSource("trajet").setData({ type: "Feature", geometry: { type: "LineString", coordinates: coords } });
+      info.textContent = `${start.properties.name} → ${f.properties.name} : ${Math.round(len)} m, environ ${Math.max(1, Math.round(len / 80))} min à pied.`;
+      start = null;
+    });
+  }
+</script>
+</body>
+</html>
