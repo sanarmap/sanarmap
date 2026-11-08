@@ -1,6 +1,6 @@
 // Vérifie les données avant de les accepter (lancé sur chaque pull request).
 // Usage : node scripts/validate.mjs        Sortie 1 s'il y a une erreur.
-import { BBOX, CATEGORIES, inside, kind, lines, meters, outerRings, readCollection } from "./lib.mjs";
+import { BBOX, CATEGORIES, ICONS, inside, kind, lines, meters, outerRings, readCollection } from "./lib.mjs";
 
 const errors = [];
 const warnings = [];
@@ -98,6 +98,8 @@ for (const f of places.features ?? []) {
   else checkGeometry(id, f.geometry);
   for (const o of p.objects ?? []) if (!ids.has(o)) err(id, `l'objet « ${o} » n'existe pas dans campus.geojson`);
   if (p.keywords && !Array.isArray(p.keywords)) err(id, "keywords doit être une liste");
+  if (p.icon && !ICONS.includes(p.icon)) err(id, `icône inconnue « ${p.icon} » (${ICONS.join(", ")})`);
+  if (p.batiments && !(Array.isArray(p.batiments) && p.batiments.every((b) => /^[A-Z]$/.test(b)))) err(id, "batiments : une liste de lettres majuscules, comme [\"C\", \"D\"]");
 }
 
 for (const w of warnings) console.log("⚠️ ", w);
