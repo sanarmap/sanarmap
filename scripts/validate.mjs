@@ -49,10 +49,20 @@ for (const f of campus.features ?? []) {
 }
 
 // Chemins presque reliés : un bout à moins de 3 m d'un autre chemin sans le toucher. Le calcul
-// d'itinéraire ne relie que les points identiques.
+// d'itinéraire ne relie que les points identiques. Un passage souterrain ou un pont (`layer`)
+// croise les autres sans les toucher : on ne signale pas un bout qui tombe au milieu de lui.
 const walkable = campus.features.filter((f) => ["path", "road-minor", "road-major"].includes(kind(f.properties ?? {})) && f.geometry);
 const vertex = new Map();
 for (const f of walkable) for (const l of lines(f.geometry)) for (const c of l) vertex.set(`${c[0]},${c[1]}`, (vertex.get(`${c[0]},${c[1]}`) ?? 0) + 1);
+/** Distance en mètres d'un point au segment [a, b]. */
+const toSegment = (p, a, b) => {
+  const P = [(p[0] - a[0]) * 106_900, (p[1] - a[1]) * 111_320];
+  const B = [(b[0] - a[0]) * 106_900, (b[1] - a[1]) * 111_320];
+  const len = B[0] ** 2 + B[1] ** 2;
+  const t = len ? Math.max(0, Math.min(1, (P[0] * B[0] + P[1] * B[1]) / len)) : 0;
+  return Math.hypot(P[0] - t * B[0], P[1] - t * B[1]);
+};
+const layer = (f) => f.properties.layer ?? "0";
 for (const f of walkable)
   for (const l of lines(f.geometry))
     for (const end of [l[0], l.at(-1)]) {
@@ -60,7 +70,14 @@ for (const f of walkable)
       let best = Infinity;
       for (const o of walkable) {
         if (o === f) continue;
-        for (const m of lines(o.geometry)) for (const c of m) best = Math.min(best, meters(end, c));
+        for (const m of lines(o.geometry)) {
+          for (let i = 1; i < m.length; i++) {
+            const d = toSegment(end, m[i - 1], m[i]);
+            // Niveaux différents : seul un bout de l'autre chemin compte (sortie du souterrain).
+            if (layer(o) !== layer(f) && Math.min(meters(end, m[0]), meters(end, m.at(-1))) > d + 0.5) continue;
+            best = Math.min(best, d);
+          }
+        }
       }
       if (best > 0 && best < 3) warn(f.id, `un bout du chemin est à ${best.toFixed(1)} m d'un autre sans le toucher : collez-les (accrochage)`);
     }
