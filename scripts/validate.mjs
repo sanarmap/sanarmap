@@ -100,6 +100,7 @@ for (const f of places.features ?? []) {
   if (p.keywords && !Array.isArray(p.keywords)) err(id, "keywords doit être une liste");
   if (p.icon && !ICONS.includes(p.icon)) err(id, `icône inconnue « ${p.icon} » (${ICONS.join(", ")})`);
   if (p.salles && !(Array.isArray(p.salles) && p.salles.every((x) => typeof x === "string" && x.trim()))) err(id, "salles : une liste de noms, comme [\"Salle multimédia\"]");
+  if (p.filieres && !(Array.isArray(p.filieres) && p.filieres.every((x) => typeof x === "string" && x.trim()))) err(id, "filieres : une liste de noms, comme [\"LEA\"]");
   if (p.batiments && !(Array.isArray(p.batiments) && p.batiments.every((b) => /^[A-Z]$/.test(b)))) err(id, "batiments : une liste de lettres majuscules, comme [\"C\", \"D\"]");
 }
 
