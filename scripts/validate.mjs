@@ -99,6 +99,7 @@ for (const f of places.features ?? []) {
   for (const o of p.objects ?? []) if (!ids.has(o)) err(id, `l'objet « ${o} » n'existe pas dans campus.geojson`);
   if (p.keywords && !Array.isArray(p.keywords)) err(id, "keywords doit être une liste");
   if (p.icon && !ICONS.includes(p.icon)) err(id, `icône inconnue « ${p.icon} » (${ICONS.join(", ")})`);
+  if (p.salles && !(Array.isArray(p.salles) && p.salles.every((x) => typeof x === "string" && x.trim()))) err(id, "salles : une liste de noms, comme [\"Salle multimédia\"]");
   if (p.batiments && !(Array.isArray(p.batiments) && p.batiments.every((b) => /^[A-Z]$/.test(b)))) err(id, "batiments : une liste de lettres majuscules, comme [\"C\", \"D\"]");
 }
 
