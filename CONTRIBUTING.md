@@ -52,7 +52,8 @@ Pour un nom ou une étiquette, un éditeur de texte suffit.
   vraiment), `batiments` (lettres des bâtiments pédagogiques, `["C", "D"]`), `salles` (salles connues
   qui s'y trouvent, `["Salle multimédia"]` : la recherche dit alors où elles sont), `filieres` (filières qui y ont
   cours, `["LEA"]`, ou `["MAC (Métiers des arts et de la culture)"]` : le sigle est affiché, le nom
-  complet est cherchable ; vaut aussi pour `salles`), `essential` (repère
+  complet est cherchable ; vaut aussi pour `salles` et `services`), `services` (ce qu'on y
+  trouve, `["Retrait Wave et OM à la boutique"]`), `essential` (repère
   majeur), `icon` (`piscine`, `sport`, `repere`, `culture`, `chapiteau`, `argent`, `portail`).
 
 ### 3. Vérifier et envoyer
