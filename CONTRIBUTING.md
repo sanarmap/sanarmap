@@ -49,7 +49,8 @@ Pour un nom ou une étiquette, un éditeur de texte suffit.
   `manger`, `sante`, `vivre`, `pratique`), `summary` (une phrase vraie, sans horaires ni tarifs
   inventés), `objects` (les identifiants des objets de `campus.geojson` qui le dessinent),
   et au besoin `short` (nom court pour la carte), `keywords` (mots que les étudiants tapent
-  vraiment), `batiments` (lettres des bâtiments pédagogiques, `["C", "D"]`), `essential` (repère
+  vraiment), `batiments` (lettres des bâtiments pédagogiques, `["C", "D"]`), `salles` (salles connues
+  qui s'y trouvent, `["Salle multimédia"]` : la recherche dit alors où elles sont), `essential` (repère
   majeur), `icon` (`piscine`, `sport`, `repere`, `culture`, `chapiteau`, `argent`, `portail`).
 
 ### 3. Vérifier et envoyer
