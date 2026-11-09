@@ -1,26 +1,32 @@
 # SanarMap
 
-La carte libre du campus de l'**Université Gaston Berger** (Sanar, Saint-Louis, Sénégal) :
-bâtiments, villages, chemins, lieux et leurs noms d'usage, prête à l'emploi pour vos projets,
-**sans Google Maps**, sans clé d'API et sans serveur de tuiles.
+**English** · [Français](README.fr.md)
 
-Elle est faite par des étudiants, pour les projets des étudiants : une app de cours, un
-mémoire, un hackathon, un site d'amicale… Tout le monde peut l'utiliser et l'améliorer.
+The open map of the **Gaston Berger University** campus (UGB, Sanar, Saint-Louis, Senegal):
+buildings, student villages, footpaths, places and the names people actually use for them.
+It is ready to use in your projects, **with no Google Maps**, no API key and no tile server.
 
-**[Voir la carte d'exemple](https://sanarmap.github.io/sanarmap/)**: touchez un départ puis
-une arrivée, l'itinéraire à pied se calcule dans la page.
+It is made by students, for student projects: a course app, a thesis, a hackathon, a student
+association website… Anyone can use it and improve it.
 
-## Utiliser la carte
+**[See the example map](https://sanarmap.github.io/sanarmap/)**: tap a starting point, then a
+destination, and the walking route is computed right in the page.
 
-Les fichiers prêts à l'emploi sont publiés à chaque modification :
+## Using the map
 
-| Fichier | Contenu |
+The ready-to-use files are published after every change:
+
+| File | Contents |
 |---|---|
-| [`campus.geojson`](https://sanarmap.github.io/sanarmap/campus.geojson) | La carte simplifiée : chaque objet a `k` (famille : `building`, `zone`, `green`, `sand`, `water`, `sport`, `path`, `road-minor`, `road-major`, `campus`), `name` s'il en a un, et `id`. |
-| [`places.geojson`](https://sanarmap.github.io/sanarmap/places.geojson) | Les lieux (scolarité, BU, restos, UFR, villages…) : nom, nom court, catégorie, présentation, mots-clés de recherche, bâtiments liés. |
-| [`reseau.json`](https://sanarmap.github.io/sanarmap/reseau.json) | Les chemins et les rues pour calculer des itinéraires à pied (format ci-dessous). |
+| [`campus.geojson`](https://sanarmap.github.io/sanarmap/campus.geojson) | The simplified map: each feature has `k` (family: `building`, `zone`, `green`, `sand`, `water`, `sport`, `path`, `road-minor`, `road-major`, `campus`), `name` if it has one, and `id`. |
+| [`places.geojson`](https://sanarmap.github.io/sanarmap/places.geojson) | The places (registrar's office, library, restaurants, faculties, villages…): name, short name, category, description, search keywords, linked buildings, and the rooms, programs and services found there. |
+| [`reseau.json`](https://sanarmap.github.io/sanarmap/reseau.json) | Footpaths and streets, for computing walking routes (format below). |
 
-Avec [MapLibre GL](https://maplibre.org/) (libre, gratuit) :
+The data is in French, as on campus: place names, descriptions and keywords
+(`UFR` = faculty, `BU` = university library, `Resto` = student restaurant, `Village` = a group
+of student residences).
+
+With [MapLibre GL](https://maplibre.org/) (open source, free):
 
 ```js
 const map = new maplibregl.Map({
@@ -35,50 +41,52 @@ map.on("load", () => {
 });
 ```
 
-L'exemple complet, avec le calcul d'itinéraire, est dans [`examples/index.html`](examples/index.html)
-(une seule page, sans outil de build). Leaflet, OpenLayers, QGIS ou Flutter
-(`flutter_map`) lisent aussi le GeoJSON.
+The full example, with route finding, is in [`examples/index.html`](examples/index.html)
+(a single page, no build step). Leaflet, OpenLayers, QGIS and Flutter (`flutter_map`) can
+read the GeoJSON too.
 
-### Format de `reseau.json`
+### `reseau.json` format
 
 ```js
-{ "nodes": [lng, lat, lng, lat, …],   // le point i est nodes[2i], nodes[2i+1]
-  "edges": [a, b, type, a, b, type, …] } // tronçon entre les points a et b
+{ "nodes": [lng, lat, lng, lat, …],   // point i is nodes[2i], nodes[2i+1]
+  "edges": [a, b, type, a, b, type, …] } // segment between points a and b
 ```
 
-`type` : 0 chemin, 1 rue, 2 grande route (route de Rosso), 3 rue ou chemin du quartier, hors du
-contour de l'université. Pour des itinéraires naturels, comptez la grande route 1,5 fois sa
-longueur (on préfère les chemins du campus) et le quartier 2,5 fois (on longe la grande route
-plutôt que de traverser le quartier). Deux tronçons sont reliés quand ils partagent un point.
+`type`: 0 footpath, 1 street, 2 main road (the Rosso road), 3 street or path in the
+neighbourhood, outside the university boundary. For natural-looking routes, count the main
+road as 1.5 times its length (campus paths are preferred) and the neighbourhood as 2.5 times
+(walking along the main road beats cutting through the neighbourhood). Two segments are
+connected when they share a point.
 
-## Contribuer
+## Contributing
 
-Un bâtiment manque, un nom est faux, un raccourci dans le sable n'est pas tracé ? Lisez
-[CONTRIBUTING.md](CONTRIBUTING.md). Pas besoin d'être développeur : on peut aussi
-[ouvrir une issue](../../issues/new) avec une photo et une description, et quelqu'un s'en occupe.
+A building is missing, a name is wrong, a shortcut across the sand isn't drawn? Read
+[CONTRIBUTING.md](CONTRIBUTING.md) (in French). You don't need to be a developer: you can also
+[open an issue](../../issues/new) with a photo and a description, and someone will take care
+of it.
 
-## Données
+## Data
 
-- `data/campus.geojson` : **la source**. Tous les objets du campus, avec leurs étiquettes dans le
-  vocabulaire d'OpenStreetMap (`building=*`, `highway=footway`, `name=*`…), un objet par ligne.
-- `data/places.geojson` : les lieux, un par ligne.
-- `scripts/build.mjs` fabrique `dist/` ; `scripts/validate.mjs` vérifie les données (lancé
-  automatiquement sur chaque pull request). Node 20 ou plus, aucune dépendance.
+- `data/campus.geojson`: **the source**. Every feature on campus, tagged with the
+  OpenStreetMap vocabulary (`building=*`, `highway=footway`, `name=*`…), one feature per line.
+- `data/places.geojson`: the places, one per line.
+- `scripts/build.mjs` produces `dist/`; `scripts/validate.mjs` checks the data (run
+  automatically on every pull request). Node 20 or later, no dependencies.
 
 ```sh
 node scripts/validate.mjs
-node scripts/build.mjs   # puis ouvrez dist/ avec un petit serveur : npx serve dist
+node scripts/build.mjs   # then serve dist/ with a small server: npx serve dist
 ```
 
-## Licence et origine
+## License and origin
 
-SanarMap part d'un instantané d'[OpenStreetMap](https://www.openstreetmap.org/) du
-8 novembre 2026, complété depuis par ses contributeurs.
+SanarMap started from an [OpenStreetMap](https://www.openstreetmap.org/) snapshot taken on
+8 November 2026, and has been improved by its contributors since.
 
-- **Données** (`data/`, `dist/*.geojson`, `dist/reseau.json`) : [Open Database License 1.0](data/LICENSE.md).
-  Vous pouvez les utiliser, même dans un projet commercial, à condition de **citer
-  « SanarMap, d'après © contributeurs OpenStreetMap »** et de partager sous la même licence
-  une base de données que vous en tirez.
-- **Code** (scripts, exemple) : [MIT](LICENSE).
+- **Data** (`data/`, `dist/*.geojson`, `dist/reseau.json`): [Open Database License 1.0](data/LICENSE.md).
+  You may use it, even in a commercial project, as long as you **credit
+  "SanarMap, d'après © contributeurs OpenStreetMap"** and share any database you derive from
+  it under the same license.
+- **Code** (scripts, example): [MIT](LICENSE).
 
-Projet né de [SanarView](https://sanarview.app), le guide du campus pour les nouveaux étudiants.
+The project grew out of [SanarView](https://sanarview.app), the campus guide for new students.
